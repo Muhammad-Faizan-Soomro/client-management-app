@@ -77,6 +77,28 @@ app.whenReady().then(() => {
     mainWindow = newWindow;
   });
 
+  ipcMain.on("edit-a-record", (event, url) => {
+    const newWindow = createWindow(path.join(app.getAppPath(), url));
+
+    if (mainWindow) {
+      mainWindow.close();
+      mainWindow = null;
+    }
+
+    mainWindow = newWindow;
+  });
+
+  ipcMain.on("see-all-records", (event, url) => {
+    const newWindow = createWindow(path.join(app.getAppPath(), url));
+
+    if (mainWindow) {
+      mainWindow.close();
+      mainWindow = null;
+    }
+
+    mainWindow = newWindow;
+  });
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -101,6 +123,18 @@ ipcMain.handle("save-client", (event, client) => {
 ipcMain.handle("delete-client", (event, cnic) => {
   let data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
   data = data.filter((client) => client.cnic != cnic);
+  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+});
+
+ipcMain.handle("edit-client", (event, client) => {
+  const { cnic, name, fatherName } = client;
+  const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+  const clientIndex = data.findIndex((client) => client.cnic === cnic);
+  if (clientIndex === -1) {
+    alert("no client found");
+  }
+  data[clientIndex].name = name;
+  data[clientIndex].fatherName = fatherName;
   fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
 });
 
