@@ -14,7 +14,7 @@
       <span>Back To Main Menu</span>
     </button>
     <h1>Search Client</h1>
-    <form id="search-form">
+    <form id="search-form" action="/submit" method="post">
       <div class="form-group">
         <input required type="text" autocomplete="off" class="input" id="client-id">
         <label class="user-label">Enter Client CNIC</label>
@@ -28,6 +28,6 @@
     </div>
     <div id="client-details"></div>
   </div>
-  <script src="findRecord.js"></script>
+  <script type="module" src="findRecord.js"></script>
 </body>
 </html>

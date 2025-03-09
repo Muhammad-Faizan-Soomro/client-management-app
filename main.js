@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, ipcMain } = require("electron/main");
 const path = require("node:path");
 const fs = require("fs");
+const mainUrl = require("url");
 
 const isDev = process.env.NODE_ENV !== "production";
 const isMac = process.platform === "darwin";
@@ -11,7 +12,9 @@ function createWindow(file) {
   const win = new BrowserWindow({
     webPreferences: {
       preload: path.join(app.getAppPath(), "./renderer/preload.js"),
+      webSecurity: true, // Try disabling it only if necessary
       contextIsolation: true,
+      nodeIntegration: true,
     },
     autoHideMenuBar: true,
     title: "CaseFile",
@@ -20,21 +23,32 @@ function createWindow(file) {
 
   win.maximize();
 
-  // if (isDev) {
-  //   win.webContents.openDevTools();
-  // }
+  if (isDev) {
+    win.webContents.openDevTools();
+  }
 
-  win.loadFile(file);
+  // win.loadFile(file);
+  win.loadURL(file);
   return win;
 }
 
 app.whenReady().then(() => {
-  let mainWindow = createWindow(
-    path.join(app.getAppPath(), "./renderer/index.html")
-  );
+  const viewUrl = mainUrl.format({
+    pathname: path.join(app.getAppPath(), "./renderer/index.html"),
+    protocol: "file:",
+    slashes: true,
+  });
+  // const newWindow = createWindow(path.join(app.getAppPath(), url));
+  let mainWindow = createWindow(viewUrl);
 
   ipcMain.on("add-new-record", (event, url) => {
-    const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const viewUrl = mainUrl.format({
+      pathname: path.join(app.getAppPath(), url),
+      protocol: "file:",
+      slashes: true,
+    });
+    // const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const newWindow = createWindow(viewUrl);
 
     if (mainWindow) {
       mainWindow.close();
@@ -45,7 +59,13 @@ app.whenReady().then(() => {
   });
 
   ipcMain.on("main-menu", (event, url) => {
-    const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const viewUrl = mainUrl.format({
+      pathname: path.join(app.getAppPath(), url),
+      protocol: "file:",
+      slashes: true,
+    });
+    // const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const newWindow = createWindow(viewUrl);
 
     if (mainWindow) {
       mainWindow.close();
@@ -55,8 +75,15 @@ app.whenReady().then(() => {
     mainWindow = newWindow;
   });
 
-  ipcMain.on("find-a-record", (event, url) => {
-    const newWindow = createWindow(path.join(app.getAppPath(), url));
+  ipcMain.on("find-a-record", (event, url, cnic = "") => {
+    const viewUrl = mainUrl.format({
+      pathname: path.join(app.getAppPath(), url),
+      protocol: "file:",
+      slashes: true,
+      query: { id: cnic },
+    });
+    // const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const newWindow = createWindow(viewUrl);
 
     if (mainWindow) {
       mainWindow.close();
@@ -67,7 +94,13 @@ app.whenReady().then(() => {
   });
 
   ipcMain.on("delete-a-record", (event, url) => {
-    const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const viewUrl = mainUrl.format({
+      pathname: path.join(app.getAppPath(), url),
+      protocol: "file:",
+      slashes: true,
+    });
+    // const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const newWindow = createWindow(viewUrl);
 
     if (mainWindow) {
       mainWindow.close();
@@ -77,8 +110,15 @@ app.whenReady().then(() => {
     mainWindow = newWindow;
   });
 
-  ipcMain.on("edit-a-record", (event, url) => {
-    const newWindow = createWindow(path.join(app.getAppPath(), url));
+  ipcMain.on("edit-a-record", (event, url, cnic = "") => {
+    const viewUrl = mainUrl.format({
+      pathname: path.join(app.getAppPath(), url),
+      protocol: "file:",
+      slashes: true,
+      query: { id: cnic },
+    });
+    // const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const newWindow = createWindow(viewUrl);
 
     if (mainWindow) {
       mainWindow.close();
@@ -89,7 +129,13 @@ app.whenReady().then(() => {
   });
 
   ipcMain.on("see-all-records", (event, url) => {
-    const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const viewUrl = mainUrl.format({
+      pathname: path.join(app.getAppPath(), url),
+      protocol: "file:",
+      slashes: true,
+    });
+    // const newWindow = createWindow(path.join(app.getAppPath(), url));
+    const newWindow = createWindow(viewUrl);
 
     if (mainWindow) {
       mainWindow.close();
@@ -152,6 +198,11 @@ ipcMain.handle("save-client-image", async (event, base64Image) => {
 ipcMain.handle("get-client-by-id", (event, id) => {
   const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
   return data.find((client) => client.cnic === id) || null;
+});
+
+ipcMain.handle("all-data", (event) => {
+  const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+  return data || null;
 });
 
 app.on("window-all-closed", () => {
