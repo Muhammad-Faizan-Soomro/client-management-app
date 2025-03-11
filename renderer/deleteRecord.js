@@ -9,8 +9,7 @@ const cnic = document.getElementById("cnic");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  await window.electronAPI.deleteClient(cnic.value);
-
-  alert("Client deleted successfully!");
+  const deleteResult = await window.electronAPI.deleteClient(cnic.value);
+  deleteResult ? alert("Client Deleted Successfully.") : alert("Client Doesn't Exist.")
   form.reset();
 });

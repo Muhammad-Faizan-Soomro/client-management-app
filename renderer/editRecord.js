@@ -10,6 +10,9 @@ const clientDetailsDiv = document.getElementById("client-details");
 const clientImage = document.getElementById("client-img");
 const clientForm = document.getElementById("client-form");
 
+
+// Add dynamic additional fields
+
 if (recordId) {
   const clientId = document.getElementById("client-id");
   clientId.value = recordId;
@@ -24,14 +27,17 @@ searchForm.addEventListener("submit", async (e) => {
 
 async function searchClient(clientId) {
   const client = await window.electronAPI.getClientById(clientId);
+  clientForm.innerHTML = null;
 
   if (client) {
-
+    clientImage.setAttribute("src", client.imagePath);
+    clientImage.style.display = "block";
     clientForm.innerHTML = `
-    <div class="form-group">
-        <input required type="text" name="cnic" autocomplete="off" class="input" value=${client.cnic} disabled>
-        <label class="user-label">CNIC</label>
+      <div class="form-group">
+        <input required type="text" name="cnic" autocomplete="off" class="input" value="CNIC: ${client.cnic}" disabled>
       </div>
+      <h2>Upload Client Image</h2>
+      <input type="file" name="client-image" accept="image/*" id="client-image">
       <div class="form-group">
         <input required type="text" name="name" autocomplete="off" class="input" value=${client.name}>
         <label class="user-label">Name</label>
@@ -39,6 +45,35 @@ async function searchClient(clientId) {
       <div class="form-group">
         <input required type="text" name="fatherName" autocomplete="off" class="input" value=${client.fatherName}>
         <label class="user-label">Father Name</label>
+      </div>
+      <div class="form-group">
+        <input required type="text" name="address" autocomplete="off" class="input" value=${client.address}>
+        <label class="user-label">Address</label>
+      </div>
+      <div class="form-group">
+        <input required type="text" name="firNo" autocomplete="off" class="input" value=${client.firNo}>
+        <label class="user-label">FIR NO</label>
+      </div>
+      <div class="form-group">
+        <input required type="text" name="dateOfArresting" autocomplete="off" class="input" value=${client.dateOfArresting}>
+        <label class="user-label">Date of Arrest</label>
+      </div>
+      <div class="form-group">
+        <input required type="text" name="nameOfLawyer" autocomplete="off" class="input" value=${client.nameOfLawyer}>
+        <label class="user-label">Name of Lawyer</label>
+      </div>
+      <div class="form-group">
+        <input required type="text" name="dateOfHearing" autocomplete="off" class="input" value=${client.dateOfHearing}>
+        <label class="user-label">Date of Hearing</label>
+      </div>
+      <div class="form-group">
+        <input required type="text" name="dateOfLastHearing" autocomplete="off" class="input" value=${client.dateOfLastHearing}>
+        <label class="user-label">Update of Last Hearing</label>
+      </div>
+      <h2>Additional Details</h2>
+      <div id="additional-fields" class="additional-fields"></div>
+      <button type="button" id="add-field" class="secondary-button">Add Additional Detail</button>
+      <br />
       </div>
       <button type="submit" class="primary-btn">
         <div class="svg-wrapper-1">
@@ -59,6 +94,7 @@ async function searchClient(clientId) {
         <span>Update Client</span>
       </button>
     `;
+    addFields(client.additionalFields);
   } else {
     clientDetailsDiv.innerHTML = `
     <div class="error">
@@ -74,9 +110,82 @@ async function searchClient(clientId) {
   }
 }
 
+function addFields(client) {
+  const additionalFieldsContainer =
+    document.getElementById("additional-fields");
+
+  const addFieldButton = document.getElementById("add-field");
+
+  const fieldDiv = document.createElement("div");
+
+  fieldDiv.innerHTML = `
+      ${client.map(
+        (field) =>
+          `    <div class="form-group">
+        <input required type="text" name="${field.fieldName}" autocomplete="off" class="input" value="${field.fieldName}">
+        <label class="user-label">Enter Detail Label e.g. "Date of Birth"</label>
+      </div>
+      <div class="form-group">
+        <input required type="text" name="${field.fieldValue}" autocomplete="off" class="input" value="${field.fieldValue}">
+        <label class="user-label">Enter Actual Detail e.g. "16/04/1991"</label>
+      </div>
+      <button type="button" class="remove-field">
+        <p class="paragraph"> delete </p>
+        <span class="icon-wrapper">
+          <svg class="icon" width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 7V18C6 19.1046 6.89543 20 8 20H16C17.1046 20 18 19.1046 18 18V7M6 7H5M6 7H8M18 7H19M18 7H16M10 11V16M14 11V16M8 7V5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V7M8 7H16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+      </button>`
+      )}`;
+  additionalFieldsContainer.appendChild(fieldDiv);
+
+  // Add remove functionality
+  fieldDiv.querySelector(".remove-field").addEventListener("click", () => {
+    additionalFieldsContainer.removeChild(fieldDiv);
+  });
+
+  addFieldButton.addEventListener("click", () => {
+    const anotherFieldDiv = document.createElement("div");
+
+    anotherFieldDiv.innerHTML = `
+          <div class="form-group">
+            <input required type="text" name="fieldName" autocomplete="off" class="input">
+            <label class="user-label">Enter Detail Label e.g. "Date of Birth"</label>
+          </div>
+          <div class="form-group">
+            <input required type="text" name="fieldValue" autocomplete="off" class="input">
+            <label class="user-label">Enter Actual Detail e.g. "16/04/1991"</label>
+          </div>
+          <button type="button" class="remove-field">
+            <p class="paragraph"> delete </p>
+            <span class="icon-wrapper">
+              <svg class="icon" width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 7V18C6 19.1046 6.89543 20 8 20H16C17.1046 20 18 19.1046 18 18V7M6 7H5M6 7H8M18 7H19M18 7H16M10 11V16M14 11V16M8 7V5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V7M8 7H16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </span>
+          </button>
+        `;
+    additionalFieldsContainer.appendChild(anotherFieldDiv);
+
+    // Add remove functionality
+    anotherFieldDiv
+      .querySelector(".remove-field")
+      .addEventListener("click", () => {
+        additionalFieldsContainer.removeChild(anotherFieldDiv);
+      });
+  });
+}
+
 // Save client data
 clientForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const additionalFieldsContainer =
+    document.getElementById("additional-fields");
+
+  const imageSrc = clientImage.getAttribute("src");
+  const imageInput = document.getElementById("client-image");
+
 
   const fixedFields = {};
   const additionalFields = [];
@@ -86,7 +195,9 @@ clientForm.addEventListener("submit", async (e) => {
     'input[name]:not([name="fieldName"]):not([name="fieldValue"])'
   );
   fixedInputs.forEach((input) => {
-    fixedFields[input.name] = input.value;
+    if (input.name != "client-image") {
+      fixedFields[input.name] = input.value;
+    }
   });
 
   // Collect additional fields
@@ -99,33 +210,37 @@ clientForm.addEventListener("submit", async (e) => {
     });
   });
 
-  //   // Handle image upload
-  //   let imageName = null;
-  //   if (imageInput.files.length > 0) {
-  //     const file = imageInput.files[0];
-  //     const reader = new FileReader();
-  //     reader.onload = async () => {
-  //       const base64Image = reader.result.split(",")[1]; // Extract base64 data
-  //       imageName = await window.electronAPI.saveClientImage(base64Image);
+  let imageName = null;
+  if (imageInput.files.length > 0) {
+    const file = imageInput.files[0];
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Image = reader.result.split(",")[1]; // Extract base64 data
+      imageName = await window.electronAPI.saveClientImage(base64Image);
 
-  //       // Save client data
-  //       const clientData = {
-  //         ...fixedFields,
-  //         additionalFields,
-  //         imagePath: `${imageName}`,
-  //       };
-  //       await window.electronAPI.saveClient(clientData);
+      // Save client data
+      const clientData = {
+        ...fixedFields,
+        additionalFields,
+        imagePath: `${imageName}`,
+      };
+      await window.electronAPI.editClient(clientData);
 
-  //       alert("Client saved successfully!");
-  //       clientForm.reset();
-  //     };
-  //     reader.readAsDataURL(file);
-  //   } else {
-  // Save without image
-  const clientData = { ...fixedFields, additionalFields, imagePath: null };
-  await window.electronAPI.editClient(clientData);
+      alert("Client saved successfully!");
+      form.reset();
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // Save without image
+    const clientData = {
+      ...fixedFields,
+      additionalFields,
+      imagePath: imageSrc,
+    };
+    await window.electronAPI.editClient(clientData);
 
-  alert("Client edit successfully!");
-  clientForm.reset();
+    alert("Client saved successfully!");
+    form.reset();
+  }
   additionalFieldsContainer.innerHTML = ""; // Clear dynamic fields
 });

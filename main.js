@@ -23,9 +23,9 @@ function createWindow(file) {
 
   win.maximize();
 
-  if (isDev) {
-    win.webContents.openDevTools();
-  }
+  // if (isDev) {
+  //   win.webContents.openDevTools();
+  // }
 
   // win.loadFile(file);
   win.loadURL(file);
@@ -168,19 +168,36 @@ ipcMain.handle("save-client", (event, client) => {
 
 ipcMain.handle("delete-client", (event, cnic) => {
   let data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+  const initalLength = data.length;
   data = data.filter((client) => client.cnic != cnic);
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+  if (initalLength !== data.length) {
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+    return 1;
+  }
+  return 0;
 });
 
 ipcMain.handle("edit-client", (event, client) => {
-  const { cnic, name, fatherName } = client;
+  const { cnic } = client;
+  console.log(client);
   const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
-  const clientIndex = data.findIndex((client) => client.cnic === cnic);
+  const cnicExtract = cnic.split(" ")[1];
+  const clientIndex = data.findIndex((client) => client.cnic === cnicExtract);
   if (clientIndex === -1) {
     alert("no client found");
   }
-  data[clientIndex].name = name;
-  data[clientIndex].fatherName = fatherName;
+  data[clientIndex].name = client.name;
+  data[clientIndex].fatherName = client.fatherName;
+  data[clientIndex].address = client.address;
+  data[clientIndex].firNo = client.firNo;
+  data[clientIndex].dateOfArresting = client.dateOfArresting;
+  data[clientIndex].nameOfLawyer = client.nameOfLawyer;
+  data[clientIndex].dateOfHearing = client.dateOfHearing;
+  data[clientIndex].dateOfLastHearing = client.dateOfLastHearing;
+  data[clientIndex].additionalFields = client.additionalFields;
+  data[clientIndex].imagePath = client.imagePath;
+
+
   fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
 });
 

@@ -48,7 +48,9 @@ form.addEventListener("submit", async (e) => {
     'input[name]:not([name="fieldName"]):not([name="fieldValue"])'
   );
   fixedInputs.forEach((input) => {
-    fixedFields[input.name] = input.value;
+    if (input.name != "client-image") {
+      fixedFields[input.name] = input.value;
+    }
   });
 
   // Collect additional fields
