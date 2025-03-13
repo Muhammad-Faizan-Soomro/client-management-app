@@ -3,20 +3,181 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-  <title>System</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
+  <title>Client Management System</title>
+  <style>
+    /* Base styles from previous design */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* New menu-specific styles */
+    .main-menu {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    .header {
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      color: #2c3e50;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: #7f8c8d;
+      font-size: 1.1rem;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      padding: 1rem;
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .menu-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-icon {
+      width: 60px;
+      height: 60px;
+      background-color: #3498db10;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease;
+    }
+
+    .menu-card:hover .menu-icon {
+      background-color: #3498db20;
+    }
+
+    .menu-icon svg {
+      width: 30px;
+      height: 30px;
+      fill: #3498db;
+    }
+
+    .menu-title {
+      color: #2c3e50;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .menu-description {
+      color: #7f8c8d;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Different icon colors for different actions */
+    .menu-card.delete .menu-icon svg {
+      fill: #e74c3c;
+    }
+
+    .menu-card.add .menu-icon svg {
+      fill: #2ecc71;
+    }
+
+    .menu-card.edit .menu-icon svg {
+      fill: #f1c40f;
+    }
+  </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>Welcome to the Client Management System</h1>
-    <div class="button-container">
-      <button id="see-all-records" class="primary-button">View All Records</button>
-      <button id="add-new-record" class="primary-button">Add Record</button>
-      <button id="find-a-record" class="primary-button">Find Record</button>
-      <button id="delete-a-record" class="primary-button">Delete Record</button>
-      <button id="edit-a-record" class="primary-button">Edit Record</button>
+    <div class="header">
+      <h1>Welcome to the Client Management System</h1>
+      <p>Manage your client records efficiently and securely</p>
+    </div>
+
+    <div class="menu-grid">
+      <button class="menu-card" id="see-all-records">
+        <div class="menu-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M12 6a2 2 0 1 0-2-2 2 2 0 0 0 2 2zm0 8a2 2 0 1 0-2-2 2 2 0 0 0 2 2zm0 8a2 2 0 1 0-2-2 2 2 0 0 0 2 2z" />
+          </svg>
+        </div>
+        <h3 class="menu-title">View All Records</h3>
+        <p class="menu-description">Browse and manage all client records in the system</p>
+      </button>
+
+      <button class="menu-card add" id="add-new-record">
+        <div class="menu-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z" />
+          </svg>
+        </div>
+        <h3 class="menu-title">Add Record</h3>
+        <p class="menu-description">Create new client records and store information</p>
+      </button>
+
+      <button class="menu-card" id="find-a-record">
+        <div class="menu-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.39zM11 18a7 7 0 1 1 7-7 7 7 0 0 1-7 7z" />
+          </svg>
+        </div>
+        <h3 class="menu-title">Find Record</h3>
+        <p class="menu-description">Quickly locate specific client records</p>
+      </button>
+
+      <button class="menu-card delete" id="delete-a-record">
+        <div class="menu-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14zM6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
+          </svg>
+        </div>
+        <h3 class="menu-title">Delete Record</h3>
+        <p class="menu-description">Remove existing records from the system</p>
+      </button>
+
+      <button class="menu-card edit" id="edit-a-record">
+        <div class="menu-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75zM20.71 5.63l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83a1 1 0 0 0 0-1.41z" />
+          </svg>
+        </div>
+        <h3 class="menu-title">Edit Record</h3>
+        <p class="menu-description">Modify existing client information</p>
+      </button>
     </div>
   </div>
   <script src="renderer.js"></script>

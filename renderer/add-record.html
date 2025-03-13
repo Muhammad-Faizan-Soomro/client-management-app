@@ -4,85 +4,437 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob:;">
   <title>Add New Record</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+      color: #2c3e50;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #3498db;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-section {
+      text-align: center;
+      margin-bottom: 2rem;
+      /* position: relative;
+      display: inline-block; */
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #3498db;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .file-label:hover {
+      background-color: #2980b9;
+    }
+
+    .preview-image {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 1rem auto;
+      border: 3px solid #3498db;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+
+    .dynamic-section {
+      margin-top: 2rem;
+    }
+
+    .additional-detail {
+      margin-bottom: 1rem;
+    }
+
+    .add-button {
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .add-button:hover {
+      background-color: #27ae60;
+    }
+
+    .save-button {
+      width: 100%;
+      padding: 1rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 2rem;
+    }
+
+    .save-button:hover {
+      background-color: #2980b9;
+    }
+
+    .divider {
+      border: 0;
+      height: 1px;
+      background: #eee;
+      margin: 2rem 0;
+    }
+
+    #main-menu {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    #main-menu:hover {
+      background-color: #34495e;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #main-menu:active {
+      transform: translateY(0);
+    }
+
+    #main-menu svg {
+      fill: white;
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    #main-menu:hover svg {
+      transform: translateX(-2px);
+    }
+
+    #main-menu span {
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .input-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      display: none;
+      font-style: italic;
+    }
+
+    .input-field:invalid:not(:focus):not(:placeholder-shown) {
+      border-color: #e74c3c;
+    }
+
+    .input-field:invalid:not(:focus):not(:placeholder-shown)+.error-message {
+      display: block;
+    }
+
+    .example-text {
+      color: #95a5a6;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+
+    .btn-delete {
+      background-color: #e74c3c;
+      margin-bottom: 1rem;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.2);
+    }
+
+    .btn-delete:hover {
+      background-color: #c0392b;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-delete:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(231, 76, 60, 0.2);
+    }
+
+    .btn-delete:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.4);
+    }
+
+    .btn-delete svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    /* Optional loading animation */
+    @keyframes danger-pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .deleting {
+      animation: danger-pulse 1s infinite;
+    }
+
+    input[type="date"] {
+      border: gainsboro !important;
+      border-width: 1px !important;
+      border-style: solid !important;
+    }
+
+    .remove-image-btn {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: #e74c3c;
+      color: white;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+      z-index: 2;
+    }
+
+    .remove-image-btn:hover {
+      background: #c0392b;
+      transform: scale(1.1);
+    }
+
+    .remove-image-btn:active {
+      transform: scale(0.95);
+    }
+
+    .remove-image-btn.visible {
+      display: flex;
+    }
+
+    /* Add to existing image container */
+    .client-image-container {
+      display: block;
+      margin: auto;
+      width: fit-content;
+      position: relative;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container-one">
-    <button id="main-menu">
-      <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
-        <path
-          d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
-        </path>
-      </svg>
-      <span>Back To Main Menu</span>
-    </button>
-    <h1>Add Client</h1>
+  <button id="main-menu">
+    <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+      <path
+        d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
+      </path>
+    </svg>
+    <span>Back To Main Menu</span>
+  </button>
+  <div class="container">
+    <h1 class="section-title">Add New Client</h1>
     <form id="client-form">
-      <h2>Upload Client Image</h2>
-      <input type="file" name="client-image" accept="image/*" id="client-image">
-      <h2>Enter Client Details</h2>
-      <div class="form-group">
-        <input required type="text" name="cnic" autocomplete="off" class="input">
-        <label class="user-label">CNIC</label>
+
+      <div class="upload-section">
+        <input type="file" id="client-image" class="file-input" accept="image/*">
+        <label for="client-image" class="file-label">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+          <span>Upload Client Image</span>
+        </label>
       </div>
-      <div class="form-group">
-        <input required type="text" name="name" autocomplete="off" class="input">
-        <label class="user-label">Name</label>
+      <div class="client-image-container">
+        <img src="" class="preview-image" id="image-preview" style="display: none;">
+        <button type="button" class="remove-image-btn" id="remove-image-btn" title="Remove image">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
       </div>
-      <div class="form-group">
-        <input required type="text" name="fatherName" autocomplete="off" class="input">
-        <label class="user-label">Father Name</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="address" autocomplete="off" class="input">
-        <label class="user-label">Address</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="firNo" autocomplete="off" class="input">
-        <label class="user-label">FIR NO</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="dateOfArresting" autocomplete="off" class="input">
-        <label class="user-label">Date of Arrest</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="nameOfLawyer" autocomplete="off" class="input">
-        <label class="user-label">Name of Lawyer</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="dateOfHearing" autocomplete="off" class="input">
-        <label class="user-label">Date of Hearing</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="dateOfLastHearing" autocomplete="off" class="input">
-        <label class="user-label">Update of Last Hearing</label>
-      </div>
-      <h2>Additional Details</h2>
-      <div id="additional-fields" class="additional-fields"></div>
-      <button type="button" id="add-field" class="secondary-button">Add Additional Detail</button>
-      <br />
-      <!-- From Uiverse.io by Peary74 --> 
-      <button type="submit" class="primary-btn">
-        <div class="svg-wrapper-1">
-          <div class="svg-wrapper">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="30"
-              height="30"
-              class="icon"
-            >
-              <path
-                d="M22,15.04C22,17.23 20.24,19 18.07,19H5.93C3.76,19 2,17.23 2,15.04C2,13.07 3.43,11.44 5.31,11.14C5.28,11 5.27,10.86 5.27,10.71C5.27,9.33 6.38,8.2 7.76,8.2C8.37,8.2 8.94,8.43 9.37,8.8C10.14,7.05 11.13,5.44 13.91,5.44C17.28,5.44 18.87,8.06 18.87,10.83C18.87,10.94 18.87,11.06 18.86,11.17C20.65,11.54 22,13.13 22,15.04Z"
-              ></path>
-            </svg>
-          </div>
+
+      <hr class="divider">
+
+      <!-- Client Details Form -->
+      <div class="form-section">
+        <h2 class="section-title">Client Details</h2>
+
+        <div class="form-group">
+          <label class="input-label" for="cnic">CNIC Number</label>
+          <input required type="text" name="cnic" autocomplete="off" class="input-field" pattern="^\d{5}-\d{7}-\d{1}$"
+            inputmode="numeric" placeholder="Enter CNIC">
+          <div class="error-message">Please enter a valid CNIC format (XXXXX-XXXXXXX-X)</div>
+          <div class="example-text">Example: 42101-1234567-1</div>
         </div>
-        <span>Save Client</span>
-      </button>
+
+        <div class="form-group">
+          <label class="input-label" for="name">Full Name</label>
+          <input required type="text" name="name" autocomplete="off" class="input-field" maxlength="50" minlength="3"
+            placeholder="Enter full name">
+          <div class="error-message">Please enter a valid name (min 3 characters)</div>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label" for="fatherName">Father's Name</label>
+          <input required type="text" name="fatherName" autocomplete="off" class="input-field" maxlength="50"
+            minlength="3" placeholder="Enter father name">
+          <div class="error-message">Please enter father's name (min 3 characters)</div>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label" for="address">Address</label>
+          <input required type="text" name="address" autocomplete="off" class="input-field"
+            pattern="^[A-Za-z0-9#\-\s]+$" maxlength="100" placeholder="Enter address">
+          <div class="error-message">Please enter a valid address</div>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label" for="firNo">FIR #</label>
+          <input required type="text" name="firNo" autocomplete="off" class="input-field" pattern="^\d{1,5}/\d{4}$"
+            placeholder="Enter FIR Number" inputmode="numeric">
+          <div class="error-message">Invalid fir number format (XXX/YYYY)</div>
+          <div class="example-text">Example: 123/2024</div>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label" for="dateOfArresting">Date of Arresting</label>
+          <input required type="date" name="dateOfArresting" autocomplete="off" class="input-field">
+        </div>
+
+        <div class="form-group">
+          <label class="input-label" for="nameOfLawyer">Lawyer Name</label>
+          <input required type="text" name="nameOfLawyer" autocomplete="off" class="input-field" maxlength="50"
+            minlength="3" placeholder="Enter lawyer name">
+          <div class="error-message">Please enter a valid lawyer's name (min 3 characters)</div>
+
+        </div>
+        <div class="form-group">
+          <label class="input-label" for="dateOfHearing">Date of Hearing</label>
+          <input required type="date" name="dateOfHearing" autocomplete="off" class="input-field">
+        </div>
+
+        <div class="form-group">
+          <label class="input-label" for="dateOfLastHearing">Update of Last Hearing</label>
+          <input required type="text" name="dateOfLastHearing" autocomplete="off" class="input-field"
+            placeholder="Enter Update of Last Hearing">
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Dynamic Additional Details -->
+      <div class="dynamic-section">
+        <h2 class="section-title">Additional Details</h2>
+
+        <div id="additional-fields"></div>
+
+        <button type="button" class="add-button" id="add-field">
+          + Add Additional Detail
+        </button>
+      </div>
+
+      <button type="submit" class="save-button">Save Client</button>
     </form>
   </div>
   <script src="addRecord.js"></script>

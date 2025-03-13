@@ -4,43 +4,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Delete A Record</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
+    <title>Delete Client</title>
+    <style>
+        /* Maintain existing base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e6e9ef 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .warning-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #ffe8e6;
+            border-radius: 12px;
+            border: 2px solid #ff6b6b;
+        }
+
+        .warning-icon {
+            width: 48px;
+            height: 48px;
+            fill: #e74c3c;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            color: #e74c3c;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .danger-text {
+            color: #7f8c8d;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .delete-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .cnic-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .cnic-input:focus {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+            outline: none;
+        }
+
+        .btn-delete-confirm {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 1.2rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .btn-delete-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        #main-menu {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.8rem 1.5rem;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        #main-menu:hover {
+            background-color: #34495e;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        #main-menu:active {
+            transform: translateY(0);
+        }
+
+        #main-menu svg {
+            fill: white;
+            width: 18px;
+            height: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        #main-menu:hover svg {
+            transform: translateX(-2px);
+        }
+
+        #main-menu span {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container-one">
-        <button id="main-menu">
-            <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+    <button id="main-menu">
+        <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+            <path
+                d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
+            </path>
+        </svg>
+        <span>Back To Main Menu</span>
+    </button>
+
+    <div class="container">
+        <div class="warning-header">
+            <svg class="warning-icon" viewBox="0 0 24 24">
                 <path
-                    d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
-                </path>
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
-            <span>Back To Main Menu</span>
-        </button>
+            <h1 class="section-title">Delete Client Record</h1>
+            <p class="danger-text">This action cannot be undone. Please ensure you have entered the correct CNIC before
+                proceeding.</p>
+        </div>
 
-        <h1>Delete Client</h1>
-        <form id="client-form">
-            <div class="form-group">
-                <input required type="text" name="cnic" autocomplete="off" class="input" id="cnic">
-                <label class="user-label">Enter Client CNIC</label>
+        <form class="delete-form" id="client-form">
+            <div class="input-group">
+                <label class="input-label">Enter Client CNIC</label>
+                <input type="text" class="cnic-input" pattern="\d{5}-\d{7}-\d{1}" placeholder="42201-1234567-1" required
+                    id="cnic" name="cnic">
             </div>
-            <!-- From Uiverse.io by Peary74 -->
-            <!-- From Uiverse.io by philipo30 -->
-            <button aria-label="Delete item" class="delete-button" type="submit">
-                <svg class="trash-svg" viewBox="0 -10 64 74" xmlns="http://www.w3.org/2000/svg">
-                    <g id="trash-can">
-                        <rect x="16" y="24" width="32" height="30" rx="3" ry="3" fill="#e74c3c"></rect>
 
-                        <g transform-origin="12 18" id="lid-group">
-                            <rect x="12" y="12" width="40" height="6" rx="2" ry="2" fill="#c0392b"></rect>
-                            <rect x="26" y="8" width="12" height="4" rx="2" ry="2" fill="#c0392b"></rect>
-                        </g>
-                    </g>
+            <button type="submit" class="btn-delete-confirm">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                 </svg>
+                Confirm Permanent Deletion
             </button>
-
         </form>
     </div>
     <script src="deleteRecord.js"></script>

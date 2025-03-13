@@ -2,31 +2,41 @@ document.getElementById("main-menu").addEventListener("click", () => {
   window.electronAPI.mainMenu("./renderer/index.html");
 });
 
-const clientDetailsDiv = document.getElementById("client-details");
+const clientDetailsDiv = document.getElementById("records-list");
 const data = await window.electronAPI.allData();
-let generatedHtml = "";
-data.forEach((item) => {
-  generatedHtml += `
-            <div class="card__data>
 
-              <div class="card__right">
-                  <div class="item">${item.cnic}</div>
-              </div>
-              <div class="card__left">
-                  <div class="item">${item.name}</div>
-              </div>
-            </div>
-            <button class="view-btn" data-id="${item.cnic}">View Full Record</button>
-            <button class="dlt-btn" data-id="${item.cnic}">Delete Record</button>
-            <button class="edit-btn" data-id="${item.cnic}">Edit Record</button>
-          `;
-});
+if (data.length == 0){
+  clientDetailsDiv.innerHTML = '<div class="no-records">No Records Available</div>'
+} else {
 
-clientDetailsDiv.innerHTML = generatedHtml;
+clientDetailsDiv.innerHTML = `
+${data.map((item, index) =>
+  `
+            <div class="record-card">
+                <div class="record-info">
+                    <div class="record-number">[${index + 1}]</div>
+                    <div class="record-details">
+                        <div>CNIC: ${item.cnic}</div>
+                        <div>Name: ${item.name}</div>
+                    </div>
+                </div>
+                <div class="record-actions">
+                    <button class="btn btn-view" data-id="${
+                      item.cnic
+                    }">View Full Record</button>
+                    <button class="btn btn-edit" data-id="${
+                      item.cnic
+                    }">Edit Record</button>
+                    <button class="btn btn-delete" data-id="${
+                      item.cnic
+                    }">Delete Record</button>
+                </div>
+            </div>`
+).join(" ")}
+`;
+}
 
-// const { ipcRenderer } = require('electron');
-
-document.querySelectorAll(".view-btn").forEach((button) => {
+document.querySelectorAll(".btn-view").forEach((button) => {
   button.addEventListener("click", (event) => {
     const recordId = event.target.dataset.id;
     window.electronAPI.findRecord("./renderer/find-record.html", recordId);
@@ -35,7 +45,7 @@ document.querySelectorAll(".view-btn").forEach((button) => {
 
 let delete_id;
 
-document.querySelectorAll(".dlt-btn").forEach((button) => {
+document.querySelectorAll(".btn-delete").forEach((button) => {
   button.addEventListener("click", (event) => {
     delete_id = event.target.dataset.id;
     deleteeeClient(delete_id);
@@ -48,7 +58,7 @@ async function deleteeeClient(cnic) {
   window.location.reload();
 }
 
-document.querySelectorAll(".edit-btn").forEach((button) => {
+document.querySelectorAll(".btn-edit").forEach((button) => {
   button.addEventListener("click", (event) => {
     const recordId = event.target.dataset.id;
     window.electronAPI.editRecord("./renderer/edit-record.html", recordId);

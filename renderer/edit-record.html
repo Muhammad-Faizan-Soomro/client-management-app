@@ -4,49 +4,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Edit a Record</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob:;">
+    <title>Edit Client</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e6e9ef 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background-color: #3498db;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .file-label:hover {
+            background-color: #2980b9;
+        }
+
+        .preview-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 1rem auto;
+            border: 3px solid #3498db;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .edit-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #e3f2fd;
+            border-radius: 12px;
+            border: 2px solid #3498db;
+        }
+
+        .edit-icon {
+            width: 48px;
+            height: 48px;
+            fill: #3498db;
+            margin-bottom: 1rem;
+        }
+
+        /* .section-title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        } */
+
+        .edit-form {
+            display: grid;
+            gap: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .edit-form.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+            font-style: italic;
+        }
+
+        .input-field:invalid:not(:focus):not(:placeholder-shown) {
+            border-color: #e74c3c;
+        }
+
+        .input-field:invalid:not(:focus):not(:placeholder-shown)+.error-message {
+            display: block;
+        }
+
+        .example-text {
+            color: #95a5a6;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        .dynamic-section {
+            margin-top: 2rem;
+        }
+
+        .additional-detail {
+            margin-bottom: 1rem;
+        }
+
+        .add-button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .add-button:hover {
+            background-color: #27ae60;
+        }
+
+        .save-button {
+            width: 100%;
+            padding: 1rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 2rem;
+        }
+
+        .save-button:hover {
+            background-color: #2980b9;
+        }
+
+        .divider {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin: 2rem 0;
+        }
+
+        .cnic-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .cnic-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .no-records {
+            text-align: center;
+            color: #95a5a6;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            margin-bottom: 1rem;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(231, 76, 60, 0.2);
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: #e74c3c;
+            color: white;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            z-index: 2;
+        }
+
+        .remove-image-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .remove-image-btn:active {
+            transform: scale(0.95);
+        }
+
+        .remove-image-btn.visible {
+            display: flex;
+        }
+
+        /* Add to existing image container */
+        .client-image-container {
+            display: block;
+            margin: auto;
+            width: fit-content;
+            position: relative;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-delete:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 4px rgba(231, 76, 60, 0.2);
+        }
+
+        .btn-delete:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-delete svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+
+        .btn-edit {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 1.2rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes danger-pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .deleting {
+            animation: danger-pulse 1s infinite;
+        }
+
+        input[type="date"] {
+            border: gainsboro !important;
+            border-width: 1px !important;
+            border-style: solid !important;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #main-menu {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.8rem 1.5rem;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        #main-menu:hover {
+            background-color: #34495e;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        #main-menu:active {
+            transform: translateY(0);
+        }
+
+        #main-menu svg {
+            fill: white;
+            width: 18px;
+            height: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        #main-menu:hover svg {
+            transform: translateX(-2px);
+        }
+
+        #main-menu span {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container-one">
-        <button id="main-menu">
-            <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+    <button id="main-menu">
+        <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+            <path
+                d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
+            </path>
+        </svg>
+        <span>Back To Main Menu</span>
+    </button>
+
+    <div class="container">
+        <div class="edit-header">
+            <svg class="edit-icon" viewBox="0 0 24 24">
                 <path
-                    d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
-                </path>
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
             </svg>
-            <span>Back To Main Menu</span>
-        </button>
-        <h1>Edit Client Information</h1>
-        <form id="search-form">
-            <div class="form-group">
-                <input required type="text" autocomplete="off" class="input" id="client-id">
-                <label class="user-label">Enter Client CNIC</label>
-            </div>
-            <button type="submit" class="primary-button"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-                    width="20" height="20" viewBox="0 0 48 48">
-                    <path fill="#616161" d="M34.6 28.1H38.6V45.1H34.6z" transform="rotate(-45.001 36.586 36.587)">
-                    </path>
-                    <path fill="#616161" d="M20 4A16 16 0 1 0 20 36A16 16 0 1 0 20 4Z"></path>
-                    <path fill="#37474F" d="M36.2 32.1H40.2V44.400000000000006H36.2z"
-                        transform="rotate(-45.001 38.24 38.24)"></path>
-                    <path fill="#64B5F6" d="M20 7A13 13 0 1 0 20 33A13 13 0 1 0 20 7Z"></path>
-                    <path fill="#BBDEFB"
-                        d="M26.9,14.2c-1.7-2-4.2-3.2-6.9-3.2s-5.2,1.2-6.9,3.2c-0.4,0.4-0.3,1.1,0.1,1.4c0.4,0.4,1.1,0.3,1.4-0.1C16,13.9,17.9,13,20,13s4,0.9,5.4,2.5c0.2,0.2,0.5,0.4,0.8,0.4c0.2,0,0.5-0.1,0.6-0.2C27.2,15.3,27.2,14.6,26.9,14.2z">
-                    </path>
-                </svg>Search</button>
-        </form>
-        <div>
-            <img id="client-img" src="" alt="Client Image" class="client-img" />
+            <h1>Edit Client Information</h1>
+            <p class="danger-text">Enter client CNIC to load their information for editing</p>
         </div>
-        <div id="client-details"></div>
 
-        <!--  -->
+        <div class="input-group">
+            <label class="input-label">Enter Client CNIC</label>
+            <input type="text" class="cnic-input" pattern="\d{5}-\d{7}-\d{1}" placeholder="42201-1234567-1" required
+                id="client-id" name="cnic">
+        </div>
+
+        <div class="loading-overlay">
+            <div class="loading-spinner"></div>
+        </div>
+
+        <h2 class="section-title">Edit Client</h2>
         <form id="client-form">
-
         </form>
+
     </div>
     <script src="editRecord.js"></script>
 </body>

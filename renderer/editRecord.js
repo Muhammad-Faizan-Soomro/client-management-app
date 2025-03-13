@@ -2,16 +2,126 @@ document.getElementById("main-menu").addEventListener("click", () => {
   window.electronAPI.mainMenu("./renderer/index.html");
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("client-form");
+
+  // Handle form submission
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    let isValid = true;
+    const inputs = form.querySelectorAll(".input-field"); // Re-fetch dynamically added inputs
+
+    inputs.forEach((input) => {
+      if (input.name === "firNo") return; // Skip validation for firNo field
+
+      if (!input.checkValidity()) {
+        input.classList.add("touched");
+        isValid = false;
+      }
+    });
+  });
+
+  // Handle input validation using event delegation (excluding firNo)
+  document.addEventListener("input", (e) => {
+    if (
+      e.target.classList.contains("input-field") &&
+      e.target.name !== "firNo"
+    ) {
+      e.target.classList.add("touched");
+      const error = e.target
+        .closest(".form-group")
+        ?.querySelector(".error-message");
+      if (error) {
+        error.style.display = e.target.checkValidity() ? "none" : "block";
+      }
+    }
+  });
+
+  // Handle image preview using event delegation
+  document.addEventListener("change", (e) => {
+    if (e.target.id === "client-image") {
+      const preview = document.getElementById("image-preview");
+      const div = document.getElementsByClassName("no-records")[0];
+      const file = e.target.files[0];
+      const removeBtn = document.getElementById("remove-image-btn");
+
+      if (file) {
+        preview.style.display = "block";
+        div.style.display = "none";
+        // removeBtn.classList.add("visible");
+        preview.src = URL.createObjectURL(file);
+      }
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "remove-image-btn") {
+      const preview = document.getElementById("image-preview");
+      const fileInput = document.getElementById("client-image");
+      const removeBtn = document.getElementById("remove-image-btn");
+      const div = document.getElementsByClassName("no-records")[0];
+
+      preview.style.display = "none";
+      preview.src = "";
+      fileInput.value = "";
+      removeBtn.classList.remove("visible");
+      div.style.display = "block";
+    }
+  });
+});
+
+document.addEventListener("input", function (e) {
+  // Check if the event is triggered by an input with name="firNo"
+  if (e.target.matches('[name="firNo"]')) {
+    const firInput = e.target;
+    const formGroup = firInput.closest(".form-group");
+    const errorMessage = formGroup
+      ? formGroup.querySelector(".error-message")
+      : null;
+
+    // Allow only numbers and '/'
+    firInput.value = firInput.value.replace(/[^0-9/]/g, "");
+
+    // Validate pattern
+    const pattern = /^\d{1,5}\/\d{4}$/;
+    if (errorMessage) {
+      if (!pattern.test(firInput.value) && firInput.value.length > 0) {
+        errorMessage.style.display = "block"; // Show error message
+      } else {
+        errorMessage.style.display = "none"; // Hide error message
+      }
+    }
+  }
+});
+
+document
+  .querySelectorAll('[name="cnic"]')[0]
+  .addEventListener("input", function (e) {
+    let value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    if (value.length > 5) value = value.slice(0, 5) + "-" + value.slice(5);
+    if (value.length > 13) value = value.slice(0, 13) + "-" + value.slice(13);
+    e.target.value = value.slice(0, 15); // Max length 15 including hyphens
+  });
+
 const queryParams = new URLSearchParams(window.location.search);
 const recordId = queryParams.get("id");
 
-const searchForm = document.getElementById("search-form");
 const clientDetailsDiv = document.getElementById("client-details");
 const clientImage = document.getElementById("client-img");
 const clientForm = document.getElementById("client-form");
 
-
-// Add dynamic additional fields
+document
+  .getElementById("client-id")
+  .addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      // Check if Enter key is pressed
+      event.preventDefault(); // Prevent default form submission (if any)
+      const inputValue = this.value.trim(); // Get input value
+      if (inputValue) {
+        searchClient(inputValue);
+      }
+    }
+  });
 
 if (recordId) {
   const clientId = document.getElementById("client-id");
@@ -19,82 +129,161 @@ if (recordId) {
   searchClient(recordId); // Execute search immediately
 }
 
-searchForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const clientId = document.getElementById("client-id").value;
-  searchClient(clientId);
-});
-
 async function searchClient(clientId) {
   const client = await window.electronAPI.getClientById(clientId);
   clientForm.innerHTML = null;
 
   if (client) {
-    clientImage.setAttribute("src", client.imagePath);
-    clientImage.style.display = "block";
+    // clientImage.setAttribute("src", client.imagePath);
+    // clientImage.style.display = "block";
     clientForm.innerHTML = `
-      <div class="form-group">
-        <input required type="text" name="cnic" autocomplete="off" class="input" value="CNIC: ${client.cnic}" disabled>
+      <div class="upload-section">
+        <input type="file" id="client-image" class="file-input" accept="image/*">
+        <label for="client-image" class="file-label">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+          <span>Update Client Image</span>
+        </label>
       </div>
-      <h2>Upload Client Image</h2>
-      <input type="file" name="client-image" accept="image/*" id="client-image">
-      <div class="form-group">
-        <input required type="text" name="name" autocomplete="off" class="input" value=${client.name}>
-        <label class="user-label">Name</label>
+      <div class="client-image-container">
+        ${
+          client.imagePath
+            ? `
+        <img src="${client.imagePath}" class="preview-image" id="image-preview" style="display: block;">`
+            : `<img src="" class="preview-image" id="image-preview" style="display: none;">
+            <div class="no-records">No Image Found</div>`
+        }  
+        <div class="no-records" style="display: none;">No Image Found</div>      
+        <button type="button" class="remove-image-btn visible" id="remove-image-btn" title="Remove image">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
       </div>
-      <div class="form-group">
-        <input required type="text" name="fatherName" autocomplete="off" class="input" value=${client.fatherName}>
-        <label class="user-label">Father Name</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="address" autocomplete="off" class="input" value=${client.address}>
-        <label class="user-label">Address</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="firNo" autocomplete="off" class="input" value=${client.firNo}>
-        <label class="user-label">FIR NO</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="dateOfArresting" autocomplete="off" class="input" value=${client.dateOfArresting}>
-        <label class="user-label">Date of Arrest</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="nameOfLawyer" autocomplete="off" class="input" value=${client.nameOfLawyer}>
-        <label class="user-label">Name of Lawyer</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="dateOfHearing" autocomplete="off" class="input" value=${client.dateOfHearing}>
-        <label class="user-label">Date of Hearing</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="dateOfLastHearing" autocomplete="off" class="input" value=${client.dateOfLastHearing}>
-        <label class="user-label">Update of Last Hearing</label>
-      </div>
-      <h2>Additional Details</h2>
-      <div id="additional-fields" class="additional-fields"></div>
-      <button type="button" id="add-field" class="secondary-button">Add Additional Detail</button>
-      <br />
-      </div>
-      <button type="submit" class="primary-btn">
-        <div class="svg-wrapper-1">
-          <div class="svg-wrapper">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="30"
-              height="30"
-              class="icon"
-            >
-              <path
-                d="M22,15.04C22,17.23 20.24,19 18.07,19H5.93C3.76,19 2,17.23 2,15.04C2,13.07 3.43,11.44 5.31,11.14C5.28,11 5.27,10.86 5.27,10.71C5.27,9.33 6.38,8.2 7.76,8.2C8.37,8.2 8.94,8.43 9.37,8.8C10.14,7.05 11.13,5.44 13.91,5.44C17.28,5.44 18.87,8.06 18.87,10.83C18.87,10.94 18.87,11.06 18.86,11.17C20.65,11.54 22,13.13 22,15.04Z"
-              ></path>
-            </svg>
+
+      <hr class="divider">
+      <div class="form-section">
+          <h2 class="section-title">Client Details</h2>
+
+          <div class="form-group">
+              <label class="input-label" for="cnic">CNIC Number</label>
+              <input required type="text" name="cnic" autocomplete="off" class="input-field"
+                  pattern="^\d{5}-\d{7}-\d{1}$" disabled value="${client.cnic}">
           </div>
-        </div>
-        <span>Update Client</span>
-      </button>
+
+          <div class="form-group">
+              <label class="input-label" for="name">Full Name</label>
+              <input required type="text" name="name" autocomplete="off" class="input-field" maxlength="50"
+                  minlength="3" placeholder="Enter full name" value="${
+                    client.name
+                  }">
+              <div class="error-message">Please enter a valid name (min 3 characters)</div>
+          </div>
+
+          <div class="form-group">
+              <label class="input-label" for="fatherName">Father's Name</label>
+              <input required type="text" name="fatherName" autocomplete="off" class="input-field" maxlength="50"
+                  minlength="3" placeholder="Enter father name" value="${
+                    client.fatherName
+                  }">
+              <div class="error-message">Please enter father's name (min 3 characters)</div>
+          </div>
+
+          <div class="form-group">
+              <label class="input-label" for="address">Address</label>
+              <input required type="text" name="address" autocomplete="off" class="input-field"
+                  pattern="^[A-Za-z0-9#\-\s]+$" maxlength="100" placeholder="Enter address" value="${
+                    client.address
+                  }">
+              <div class="error-message">Please enter a valid address</div>
+          </div>
+
+          <div class="form-group">
+              <label class="input-label" for="firNo">FIR #</label>
+              <input required type="text" name="firNo" autocomplete="off" class="input-field"
+                  placeholder="Enter FIR Number" inputmode="numeric" value="${
+                    client.firNo
+                  }">
+              <div class="error-message">Invalid fir number format (XXX/YYYY)</div>
+              <div class="example-text">Example: 123/2024</div>
+          </div>
+
+          <div class="form-group">
+              <label class="input-label" for="dateOfArresting">Date of Arresting</label>
+              <input required type="date" name="dateOfArresting" autocomplete="off" class="input-field" value="${
+                client.dateOfArresting
+              }">
+          </div>
+
+          <div class="form-group">
+              <label class="input-label" for="nameOfLawyer">Lawyer Name</label>
+              <input required type="text" name="nameOfLawyer" autocomplete="off" class="input-field"
+                  maxlength="50" minlength="3" placeholder="Enter lawyer name" value="${
+                    client.nameOfLawyer
+                  }">
+              <div class="error-message">Please enter a valid lawyer's name (min 3 characters)</div>
+
+          </div>
+          <div class="form-group">
+              <label class="input-label" for="dateOfHearing">Date of Hearing</label>
+              <input required type="date" name="dateOfHearing" autocomplete="off" class="input-field" value="${
+                client.dateOfHearing
+              }">
+          </div>
+
+          <div class="form-group">
+              <label class="input-label" for="dateOfLastHearing">Update of Last Hearing</label>
+              <input required type="text" name="dateOfLastHearing" autocomplete="off" class="input-field"
+                  placeholder="Enter Update of Last Hearing" value="${
+                    client.dateOfLastHearing
+                  }">
+          </div>
+      </div>
+
+      <hr class="divider">
+      <div class="dynamic-section">
+          <h2 class="section-title">Additional Details</h2>
+
+          <div id="additional-fields">
+          
+          </div>
+
+          <button type="button" class="add-button" id="add-field">
+              + Add Additional Detail
+          </button>
+      </div>    
+
+      <button type="submit" class="save-button">Save Client</button>
     `;
+
     addFields(client.additionalFields);
+
+    document
+      .querySelectorAll('[name="name"]')[0]
+      .addEventListener("input", function (e) {
+        e.target.value = e.target.value.replace(/[^A-Za-z '-]/g, ""); // Remove any number or special character
+      });
+
+    document
+      .querySelectorAll('[name="nameOfLawyer"]')[0]
+      .addEventListener("input", function (e) {
+        e.target.value = e.target.value.replace(/[^A-Za-z '-]/g, ""); // Remove any number or special character
+      });
+
+    document
+      .querySelectorAll('[name="fatherName"]')[0]
+      .addEventListener("input", function (e) {
+        e.target.value = e.target.value.replace(/[^A-Za-z '-]/g, ""); // Remove any number or special character
+      });
+
+    document
+      .querySelectorAll('[name="address"]')[0]
+      .addEventListener("input", function (e) {
+        e.target.value = e.target.value.replace(/[^A-Za-z0-9#\-\s]/g, ""); // Remove invalid characters
+      });
   } else {
     clientDetailsDiv.innerHTML = `
     <div class="error">
@@ -116,61 +305,63 @@ function addFields(client) {
 
   const addFieldButton = document.getElementById("add-field");
 
-  const fieldDiv = document.createElement("div");
+  for (let i = 0; i < client.length; i++) {
+    const fieldDiv = document.createElement("div");
 
-  fieldDiv.innerHTML = `
-      ${client.map(
-        (field) =>
-          `    <div class="form-group">
-        <input required type="text" name="${field.fieldName}" autocomplete="off" class="input" value="${field.fieldName}">
-        <label class="user-label">Enter Detail Label e.g. "Date of Birth"</label>
-      </div>
-      <div class="form-group">
-        <input required type="text" name="${field.fieldValue}" autocomplete="off" class="input" value="${field.fieldValue}">
-        <label class="user-label">Enter Actual Detail e.g. "16/04/1991"</label>
-      </div>
-      <button type="button" class="remove-field">
-        <p class="paragraph"> delete </p>
-        <span class="icon-wrapper">
-          <svg class="icon" width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 7V18C6 19.1046 6.89543 20 8 20H16C17.1046 20 18 19.1046 18 18V7M6 7H5M6 7H8M18 7H19M18 7H16M10 11V16M14 11V16M8 7V5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V7M8 7H16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </span>
-      </button>`
-      )}`;
-  additionalFieldsContainer.appendChild(fieldDiv);
+    fieldDiv.innerHTML = `
+    <div class="form-group">
+      <label class="input-label" for="fieldName">Enter Detail Label</label>
+      <input required type="text" name="fieldName" autocomplete="off" class="input-field" placeholder="Date of Birth" value="${client[i].fieldName}">
+      <div class="error-message">This field is required</div>
+    </div>
+    <div class="form-group">
+      <label class="input-label" for="fieldValue">Enter Actual Detail</label>
+      <input required type="text" name="fieldValue" autocomplete="off" class="input-field" placeholder="16/04/1991" value="${client[i].fieldValue}">
+      <div class="error-message">This field is required</div>
+    </div>
+    <button type="button" class="btn-delete">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"/>
+          <path d="M9 10h2v8H9zm4 0h2v8h-2z"/>
+      </svg>
+      <span>Delete Field</span>
+    </button>
+  `;
+    additionalFieldsContainer.appendChild(fieldDiv);
 
-  // Add remove functionality
-  fieldDiv.querySelector(".remove-field").addEventListener("click", () => {
-    additionalFieldsContainer.removeChild(fieldDiv);
-  });
+    // Add remove functionality
+    fieldDiv.querySelector(".btn-delete").addEventListener("click", () => {
+      additionalFieldsContainer.removeChild(fieldDiv);
+    });
+  }
 
   addFieldButton.addEventListener("click", () => {
     const anotherFieldDiv = document.createElement("div");
 
     anotherFieldDiv.innerHTML = `
-          <div class="form-group">
-            <input required type="text" name="fieldName" autocomplete="off" class="input">
-            <label class="user-label">Enter Detail Label e.g. "Date of Birth"</label>
-          </div>
-          <div class="form-group">
-            <input required type="text" name="fieldValue" autocomplete="off" class="input">
-            <label class="user-label">Enter Actual Detail e.g. "16/04/1991"</label>
-          </div>
-          <button type="button" class="remove-field">
-            <p class="paragraph"> delete </p>
-            <span class="icon-wrapper">
-              <svg class="icon" width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 7V18C6 19.1046 6.89543 20 8 20H16C17.1046 20 18 19.1046 18 18V7M6 7H5M6 7H8M18 7H19M18 7H16M10 11V16M14 11V16M8 7V5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V7M8 7H16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </span>
-          </button>
+    <div class="form-group">
+      <label class="input-label" for="fieldName">Enter Detail Label</label>
+      <input required type="text" name="fieldName" autocomplete="off" class="input-field" placeholder="Date of Birth">
+      <div class="error-message">This field is required</div>
+    </div>
+    <div class="form-group">
+      <label class="input-label" for="fieldValue">Enter Actual Detail</label>
+      <input required type="text" name="fieldValue" autocomplete="off" class="input-field" placeholder="16/04/1991">
+      <div class="error-message">This field is required</div>
+    </div>
+    <button type="button" class="btn-delete">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"/>
+          <path d="M9 10h2v8H9zm4 0h2v8h-2z"/>
+      </svg>
+      <span>Delete Field</span>
+    </button>
         `;
     additionalFieldsContainer.appendChild(anotherFieldDiv);
 
     // Add remove functionality
     anotherFieldDiv
-      .querySelector(".remove-field")
+      .querySelector(".btn-delete")
       .addEventListener("click", () => {
         additionalFieldsContainer.removeChild(anotherFieldDiv);
       });
@@ -183,9 +374,8 @@ clientForm.addEventListener("submit", async (e) => {
   const additionalFieldsContainer =
     document.getElementById("additional-fields");
 
-  const imageSrc = clientImage.getAttribute("src");
+  const imageSrc = document.getElementById("client-image").getAttribute("src");
   const imageInput = document.getElementById("client-image");
-
 
   const fixedFields = {};
   const additionalFields = [];
@@ -226,7 +416,8 @@ clientForm.addEventListener("submit", async (e) => {
       };
       await window.electronAPI.editClient(clientData);
 
-      alert("Client saved successfully!");
+      alert("Client edited successfully!");
+
       form.reset();
     };
     reader.readAsDataURL(file);
@@ -239,7 +430,7 @@ clientForm.addEventListener("submit", async (e) => {
     };
     await window.electronAPI.editClient(clientData);
 
-    alert("Client saved successfully!");
+    alert("Client edited successfully!");
     form.reset();
   }
   additionalFieldsContainer.innerHTML = ""; // Clear dynamic fields

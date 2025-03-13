@@ -1,33 +1,326 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-  <title>Find a Record</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
+  <title>Search Client</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e6e9ef 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+      color: #2c3e50;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid #3498db;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100px;
+      height: 3px;
+      background: #3498db;
+    }
+
+    .search-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease;
+    }
+
+    .search-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .search-form {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .input-field {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+
+    .input-field:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      background: white;
+    }
+
+    .btn-search {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-weight: 600;
+    }
+
+    .btn-search:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .client-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: cardAppear 0.6s ease forwards;
+    }
+
+    @keyframes cardAppear {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .detail-item {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .detail-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: #3498db;
+    }
+
+    .detail-label {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .detail-value {
+      color: #2c3e50;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .search-icon {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    .detail-icon {
+      width: 18px;
+      height: 18px;
+      fill: #3498db;
+    }
+
+    #main-menu {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    #main-menu:hover {
+      background-color: #34495e;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #main-menu:active {
+      transform: translateY(0);
+    }
+
+    #main-menu svg {
+      fill: white;
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    #main-menu:hover svg {
+      transform: translateX(-2px);
+    }
+
+    #main-menu span {
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .client-header {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .client-image-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: #f8f9fa;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .client-image-container:hover {
+      transform: scale(1.05);
+    }
+
+    .client-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .client-basic-info {
+      flex: 1;
+    }
+
+    .client-name {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .client-meta {
+      color: #7f8c8d;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Add to existing icon styles */
+    .client-icon {
+      width: 24px;
+      height: 24px;
+      fill: #3498db;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="container-one">
-    <button id="main-menu">
-      <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024"><path d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z"></path></svg>
-      <span>Back To Main Menu</span>
-    </button>
-    <h1>Search Client</h1>
+  <button id="main-menu">
+    <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+      <path
+        d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
+      </path>
+    </svg>
+    <span>Back To Main Menu</span>
+  </button>
+  <div class="container">
+    <h1 class="section-title">Client Search</h1>
     <form id="search-form" action="/submit" method="post">
-      <div class="form-group">
-        <input required type="text" autocomplete="off" class="input" id="client-id">
-        <label class="user-label">Enter Client CNIC</label>
+
+      <div class="search-card">
+        <div class="search-form">
+          <input type="text" class="input-field" placeholder="Enter Client CNIC (e.g., 42201-1160094-7)"
+            pattern="\d{5}-\d{7}-\d{1}" id="client-id" name="cnic">
+          <button class="btn-search" type="submit">
+            <svg class="search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z" />
+            </svg>
+            Search Client
+          </button>
+        </div>
       </div>
-      <button type="submit" class="primary-button"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
-        <path fill="#616161" d="M34.6 28.1H38.6V45.1H34.6z" transform="rotate(-45.001 36.586 36.587)"></path><path fill="#616161" d="M20 4A16 16 0 1 0 20 36A16 16 0 1 0 20 4Z"></path><path fill="#37474F" d="M36.2 32.1H40.2V44.400000000000006H36.2z" transform="rotate(-45.001 38.24 38.24)"></path><path fill="#64B5F6" d="M20 7A13 13 0 1 0 20 33A13 13 0 1 0 20 7Z"></path><path fill="#BBDEFB" d="M26.9,14.2c-1.7-2-4.2-3.2-6.9-3.2s-5.2,1.2-6.9,3.2c-0.4,0.4-0.3,1.1,0.1,1.4c0.4,0.4,1.1,0.3,1.4-0.1C16,13.9,17.9,13,20,13s4,0.9,5.4,2.5c0.2,0.2,0.5,0.4,0.8,0.4c0.2,0,0.5-0.1,0.6-0.2C27.2,15.3,27.2,14.6,26.9,14.2z"></path>
-        </svg>Search</button>
     </form>
-    <div id="client-image">
+    <!-- <div id="client-image">
       <img id="client-img" src="" alt="Client Image" class="client-img" />
+    </div> -->
+    <div class="client-card">
+      <div class="client-header">
+        <div class="client-image-container">
+          <img src="" class="client-image" id="client-img">
+        </div>
+        <div class="client-basic-info" id="client-basic-info">
+
+        </div>
+      </div>
+      <div class="detail-grid" id="client-details">
+
+      </div>
     </div>
-    <div id="client-details"></div>
   </div>
   <script type="module" src="findRecord.js"></script>
 </body>
+
 </html>

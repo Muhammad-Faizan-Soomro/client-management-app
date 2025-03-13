@@ -162,8 +162,14 @@ if (!fs.existsSync(imagesPath)) fs.mkdirSync(imagesPath);
 
 ipcMain.handle("save-client", (event, client) => {
   const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
-  data.push(client);
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+  const cnicCheck = data.findIndex((record) => record.cnic === client.cnic);
+  const firCheck = data.findIndex((record) => record.firNo === client.firNo);
+  if (cnicCheck === -1 && firCheck === -1) {
+    data.push(client);
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+    return 1;
+  }
+  return 0;
 });
 
 ipcMain.handle("delete-client", (event, cnic) => {
@@ -179,13 +185,8 @@ ipcMain.handle("delete-client", (event, cnic) => {
 
 ipcMain.handle("edit-client", (event, client) => {
   const { cnic } = client;
-  console.log(client);
   const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
-  const cnicExtract = cnic.split(" ")[1];
-  const clientIndex = data.findIndex((client) => client.cnic === cnicExtract);
-  if (clientIndex === -1) {
-    alert("no client found");
-  }
+  const clientIndex = data.findIndex((client) => client.cnic == cnic);
   data[clientIndex].name = client.name;
   data[clientIndex].fatherName = client.fatherName;
   data[clientIndex].address = client.address;
@@ -196,7 +197,6 @@ ipcMain.handle("edit-client", (event, client) => {
   data[clientIndex].dateOfLastHearing = client.dateOfLastHearing;
   data[clientIndex].additionalFields = client.additionalFields;
   data[clientIndex].imagePath = client.imagePath;
-
 
   fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
 });
