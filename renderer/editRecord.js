@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (file) {
         preview.style.display = "block";
         div.style.display = "none";
-        // removeBtn.classList.add("visible");
+        removeBtn.classList.add("visible");
         preview.src = URL.createObjectURL(file);
       }
     }
@@ -153,7 +153,8 @@ async function searchClient(clientId) {
             ? `
         <img src="${client.imagePath}" class="preview-image" id="image-preview" style="display: block;">`
             : `<img src="" class="preview-image" id="image-preview" style="display: none;">
-            <div class="no-records">No Image Found</div>`
+            <div class="no-records">No Image Found</div>
+            `
         }  
         <div class="no-records" style="display: none;">No Image Found</div>      
         <button type="button" class="remove-image-btn visible" id="remove-image-btn" title="Remove image">
@@ -261,6 +262,9 @@ async function searchClient(clientId) {
 
     addFields(client.additionalFields);
 
+    const element = document.getElementById("remove-image-btn");
+    element.classList.toggle("visible", !!client.imagePath);
+
     document
       .querySelectorAll('[name="name"]')[0]
       .addEventListener("input", function (e) {
@@ -285,7 +289,7 @@ async function searchClient(clientId) {
         e.target.value = e.target.value.replace(/[^A-Za-z0-9#\-\s]/g, ""); // Remove invalid characters
       });
   } else {
-    clientDetailsDiv.innerHTML = `
+    clientForm.innerHTML = `
     <div class="error">
         <div class="error__icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" height="24" fill="none">
