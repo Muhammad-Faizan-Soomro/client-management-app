@@ -196,7 +196,7 @@ async function searchClient(clientId) {
           <div class="form-group">
               <label class="input-label" for="address">Address</label>
               <input required type="text" name="address" autocomplete="off" class="input-field"
-                  pattern="^[A-Za-z0-9#\-\s]+$" maxlength="100" placeholder="Enter address" value="${
+                  pattern="^[A-Za-z0-9#\-\s\/]+$" maxlength="100" placeholder="Enter address" value="${
                     client.address
                   }">
               <div class="error-message">Please enter a valid address</div>
