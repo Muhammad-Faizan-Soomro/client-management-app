@@ -38,7 +38,7 @@ document
 document
   .querySelectorAll('[name="address"]')[0]
   .addEventListener("input", function (e) {
-    e.target.value = e.target.value.replace(/[^A-Za-z0-9#\-\s]/g, ""); // Remove invalid characters
+    e.target.value = e.target.value.replace(/[^A-Za-z0-9#\-\s\/]/g, "");
   });
 
 document.addEventListener("DOMContentLoaded", () => {
