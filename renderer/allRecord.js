@@ -5,13 +5,15 @@ document.getElementById("main-menu").addEventListener("click", () => {
 const clientDetailsDiv = document.getElementById("records-list");
 const data = await window.electronAPI.allData();
 
-if (data.length == 0){
-  clientDetailsDiv.innerHTML = '<div class="no-records">No Records Available</div>'
+if (data.length == 0) {
+  clientDetailsDiv.innerHTML =
+    '<div class="no-records">No Records Available</div>';
 } else {
-
-clientDetailsDiv.innerHTML = `
-${data.map((item, index) =>
-  `
+  clientDetailsDiv.innerHTML = `
+${data
+  .map(
+    (item, index) =>
+      `
             <div class="record-card">
                 <div class="record-info">
                     <div class="record-number">[${index + 1}]</div>
@@ -32,7 +34,8 @@ ${data.map((item, index) =>
                     }">Delete Record</button>
                 </div>
             </div>`
-).join(" ")}
+  )
+  .join(" ")}
 `;
 }
 
@@ -54,7 +57,13 @@ document.querySelectorAll(".btn-delete").forEach((button) => {
 
 async function deleteeeClient(cnic) {
   await window.electronAPI.deleteClient(cnic);
-  alert("client deleted");
+  Toastify({
+    text: "Client Deleted Successfully",
+    duration: 3000,
+    gravity: "top", // or "bottom"
+    position: "right", // or "left", "center"
+    backgroundColor: "green",
+  }).showToast();
   window.location.reload();
 }
 

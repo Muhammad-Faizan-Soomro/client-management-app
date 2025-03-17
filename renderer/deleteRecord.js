@@ -19,6 +19,14 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const deleteResult = await window.electronAPI.deleteClient(cnic.value);
-  deleteResult ? alert("Client Deleted Successfully.") : alert("Client Doesn't Exist.")
+  // deleteResult ? alert("Client Deleted Successfully.") : alert("Client Doesn't Exist.")
+  Toastify({
+    text: deleteResult ? "Client Deleted Successfully." : "Client Doesn't Exist.",
+    duration: 3000,
+    gravity: "top", // or "bottom"
+    position: "right", // or "left", "center"
+    backgroundColor: deleteResult ? "green" : "red",
+  }).showToast();
+  
   form.reset();
 });

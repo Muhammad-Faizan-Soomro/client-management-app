@@ -420,7 +420,13 @@ clientForm.addEventListener("submit", async (e) => {
       };
       await window.electronAPI.editClient(clientData);
 
-      alert("Client edited successfully!");
+      Toastify({
+        text: "Client Edited Successfully.",
+        duration: 3000,
+        gravity: "top", // or "bottom"
+        position: "right", // or "left", "center"
+        backgroundColor: "green",
+      }).showToast();
 
       form.reset();
     };
@@ -434,7 +440,13 @@ clientForm.addEventListener("submit", async (e) => {
     };
     await window.electronAPI.editClient(clientData);
 
-    alert("Client edited successfully!");
+    Toastify({
+      text: "Client Edited Successfully.",
+      duration: 3000,
+      gravity: "top", // or "bottom"
+      position: "right", // or "left", "center"
+      backgroundColor: "green",
+    }).showToast();
     form.reset();
   }
   additionalFieldsContainer.innerHTML = ""; // Clear dynamic fields

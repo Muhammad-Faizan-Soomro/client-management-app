@@ -175,11 +175,16 @@ form.addEventListener("submit", async (e) => {
       };
       const savedClient = await window.electronAPI.saveClient(clientData);
 
-      if (savedClient) {
-        alert("Client saved successfully!");
-      } else {
-        alert("Client/Fir # already exist!");
-      }
+      Toastify({
+        text: savedClient
+          ? "Client Saved Successfully."
+          : "Client/Fir # Already Exist.",
+        duration: 3000,
+        gravity: "top", // or "bottom"
+        position: "right", // or "left", "center"
+        backgroundColor: savedClient ? "green" : "red",
+      }).showToast();
+
       form.reset();
       document.getElementById("image-preview").src = "";
       document.getElementById("image-preview").style.display = "none";
@@ -190,11 +195,15 @@ form.addEventListener("submit", async (e) => {
     const clientData = { ...fixedFields, additionalFields, imagePath: null };
     const savedClient = await window.electronAPI.saveClient(clientData);
 
-    if (savedClient) {
-      alert("Client saved successfully!");
-    } else {
-      alert("Client/Fir # already exist!");
-    }
+    Toastify({
+      text: savedClient
+        ? "Client Saved Successfully."
+        : "Client/Fir # Already Exist.",
+      duration: 3000,
+      gravity: "top", // or "bottom"
+      position: "right", // or "left", "center"
+      backgroundColor: savedClient ? "green" : "red",
+    }).showToast();
     form.reset();
   }
   additionalFieldsContainer.innerHTML = "";
