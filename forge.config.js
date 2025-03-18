@@ -4,14 +4,30 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses");
 module.exports = {
   packagerConfig: {
     asar: true,
-    icon: 'renderer/icon'
+    prune: true,
+    icon: "renderer/icon.ico",
+    asarUnpack: "**/*.node", // Exclude native modules
+    ignore: [
+      "node_modules/\\.cache",
+      "node_modules/electron-devtools-installer",
+      "tests",
+      "scripts",
+      "docs",
+      "README.md",
+      ".gitignore",
+      ".gitattributes",
+      ".vscode",
+      "package-lock.json",
+      "\\.pdb$",
+      "\\.dSYM",
+    ],
   },
   rebuildConfig: {},
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        setupIcon: 'renderer/icon.ico' // Local path to .ico
+        setupIcon: "renderer/icon.ico", // Local path to .ico
       },
     },
     {
