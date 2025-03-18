@@ -16,17 +16,16 @@
   "description": "CaseFile is a modern, intuitive platform designed exclusively for legal professionals to effortlessly organize, track, and safeguard client records. Built with the demands of law firms in mind, our app empowers attorneys to centralize case details, documents, deadlines, and communications in one secure hub.",
   "devDependencies": {
     "@electron-forge/cli": "^7.6.0",
-    "@electron-forge/maker-deb": "^7.6.0",
-    "@electron-forge/maker-rpm": "^7.6.0",
     "@electron-forge/maker-squirrel": "^7.6.0",
-    "@electron-forge/maker-zip": "^7.6.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.6.0",
     "@electron-forge/plugin-fuses": "^7.6.0",
     "@electron/fuses": "^1.8.0",
     "electron": "^33.2.1"
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1",
-    "toastify-js": "^1.12.0"
+    "@electron-forge/maker-deb": "^7.7.0",
+    "@electron-forge/maker-rpm": "^7.7.0",
+    "@electron-forge/maker-zip": "^7.7.0",
+    "electron-squirrel-startup": "^1.0.1"
   }
 }
