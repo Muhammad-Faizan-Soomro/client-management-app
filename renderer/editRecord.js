@@ -378,7 +378,7 @@ clientForm.addEventListener("submit", async (e) => {
   const additionalFieldsContainer =
     document.getElementById("additional-fields");
 
-  const imageSrc = document.getElementById("client-image").getAttribute("src");
+  const imageSrc = document.getElementById("image-preview").getAttribute("src");
   const imageInput = document.getElementById("client-image");
 
   const fixedFields = {};
@@ -406,6 +406,7 @@ clientForm.addEventListener("submit", async (e) => {
 
   let imageName = null;
   if (imageInput.files.length > 0) {
+    console.log("yahan hun mai")
     const file = imageInput.files[0];
     const reader = new FileReader();
     reader.onload = async () => {
@@ -432,7 +433,7 @@ clientForm.addEventListener("submit", async (e) => {
     };
     reader.readAsDataURL(file);
   } else {
-    // Save without image
+    // Save with existing image
     const clientData = {
       ...fixedFields,
       additionalFields,
@@ -449,5 +450,4 @@ clientForm.addEventListener("submit", async (e) => {
     }).showToast();
     form.reset();
   }
-  additionalFieldsContainer.innerHTML = ""; // Clear dynamic fields
 });
